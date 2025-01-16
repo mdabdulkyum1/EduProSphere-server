@@ -102,7 +102,7 @@ async function run() {
       }
       const userWithRole = {
         ...userInfo,
-        role: "user", 
+        role: "student", 
       };
     
       const result = await usersCollection.insertOne(userWithRole);
