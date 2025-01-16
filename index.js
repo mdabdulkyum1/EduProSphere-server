@@ -90,20 +90,25 @@ async function run() {
        const cursor = await usersCollection.find(query).toArray();
        res.send(cursor);
     })
-    app.post('/users', async(req, res)=>{
+    app.post('/users', async (req, res) => {
       const userInfo = req.body;
       const email = userInfo?.email;
-      const query = { email }
-
+      const query = { email };
+    
       const isExist = await usersCollection.findOne(query);
-      
-      if(isExist){
-        return res.send("already has an account")
+    
+      if (isExist) {
+        return res.send("User already has an account");
       }
-      
-      const result = await usersCollection.insertOne(userInfo);
+      const userWithRole = {
+        ...userInfo,
+        role: "user", 
+      };
+    
+      const result = await usersCollection.insertOne(userWithRole);
       res.send(result);
-    })
+    });
+    
     app.patch('/user/:id', verifyToken, verifyAdmin, async(req, res)=> {
         const id = req.params.id;
         const info = req.body;
