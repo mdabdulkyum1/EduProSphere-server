@@ -167,6 +167,32 @@ async function run() {
       }
         res.send(data);
     })
+    app.patch('/teacher-rejected', verifyToken, verifyAdmin, async(req, res)=> {
+    
+        const {id, status } = req.body;
+        const query = {_id: new ObjectId(id)};
+        const updateDoc = {
+          $set: {
+            status: status
+          }
+        }
+   
+        const result = await teachersCollection.updateOne(query, updateDoc);
+        res.send(result);
+    })
+    app.patch('/teacher-pending', verifyToken, async(req, res)=> {
+    
+        const {id, status } = req.body;
+        const query = {_id: new ObjectId(id)};
+        const updateDoc = {
+          $set: {
+            status: status
+          }
+        }
+   
+        const result = await teachersCollection.updateOne(query, updateDoc);
+        res.send(result);
+    })
 
 
 
