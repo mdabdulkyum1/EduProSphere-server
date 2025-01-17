@@ -81,6 +81,12 @@ async function run() {
       const role = result?.role;
       res.send({role});
     })
+    app.get('/user-profile/:email', async (req, res)=> {
+      const email = req.params.email;
+      const filter = {email}
+      const result = await usersCollection.findOne(filter);
+      res.send(result);
+    })
 
 
     app.get('/users/:email', verifyToken, verifyAdmin, async(req, res)=>{
