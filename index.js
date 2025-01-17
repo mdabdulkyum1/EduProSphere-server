@@ -129,10 +129,14 @@ async function run() {
     })
 
     // Teacher related api
-    app.post('/teacher', async (req, res)=> {
+    app.post('/teacher', verifyToken, async (req, res)=> {
         const teacherData = req.body;
         const result = await teachersCollection.insertOne(teacherData);
         res.send(result);
+    })
+    app.get('/teacher-request',  verifyToken,verifyAdmin, async(req, res)=> {
+      const result = await teachersCollection.find().toArray();
+      res.send(result);
     })
 
 
