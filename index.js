@@ -35,7 +35,7 @@ async function run() {
 
     
     const usersCollection = client.db("eduProSphereDB").collection("users");
-
+    const teachersCollection = client.db("eduProSphereDB").collection("teachers");
 
     // jwt apis 
     app.post('/jwt', async (req, res)=> {
@@ -128,6 +128,12 @@ async function run() {
         res.send(result);
     })
 
+    // Teacher related api
+    app.post('/teacher', async (req, res)=> {
+        const teacherData = req.body;
+        const result = await teachersCollection.insertOne(teacherData);
+        res.send(result);
+    })
 
 
 
