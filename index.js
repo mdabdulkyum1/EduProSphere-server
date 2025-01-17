@@ -138,6 +138,35 @@ async function run() {
       const result = await teachersCollection.find().toArray();
       res.send(result);
     })
+    app.get('/my-request/:email', verifyToken, async(req, res)=> {
+        const email = req.params.email;
+        const query = {email};
+        const result = await teachersCollection.findOne(query);
+        res.send(result);
+    })
+    app.patch('/teacher-request', verifyToken, verifyAdmin, async(req, res)=> {
+        
+        const {id, email, status, role} = req.body;
+        const query = {_id: new ObjectId(id)};
+        const filter = {email}
+        const updateDoc = {
+          $set: {
+            status: status
+          }
+        }
+        const updateData = {
+          $set: {
+            role: role
+          }
+        }
+        const updateUserRole = await usersCollection.updateOne(filter, updateData)
+        const result = await teachersCollection.updateOne(query, updateDoc);
+        const data = {
+          updatedUserRole: updateUserRole,
+          updatedRequestStatus: result
+      }
+        res.send(data);
+    })
 
 
 
