@@ -36,6 +36,7 @@ async function run() {
     
     const usersCollection = client.db("eduProSphereDB").collection("users");
     const teachersCollection = client.db("eduProSphereDB").collection("teachers");
+    const classesCollection = client.db("eduProSphereDB").collection("classes");
 
     // jwt apis 
     app.post('/jwt', async (req, res)=> {
@@ -200,6 +201,20 @@ async function run() {
         res.send(result);
     })
 
+    // ========================================================================================
+    //      ======================== Classes Api =======================================
+    // ========================================================================================
+    app.post('/classes', async (req, res) => {
+        const classData = req.body;
+        const result = await classesCollection.insertOne(classData);
+        res.send(result);
+    })
+    app.get('/classes', async (req, res) => {
+        const email = req.query.email;
+        const query = {email}
+        const result = await classesCollection.find(query).toArray();
+        res.send(result);
+    })
 
 
    //==================================================
