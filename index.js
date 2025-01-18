@@ -204,17 +204,72 @@ async function run() {
     // ========================================================================================
     //      ======================== Classes Api =======================================
     // ========================================================================================
-    app.post('/classes', async (req, res) => {
+    app.post('/classes', verifyToken, async (req, res) => {
         const classData = req.body;
         const result = await classesCollection.insertOne(classData);
         res.send(result);
     })
-    app.get('/classes', async (req, res) => {
+    app.get('/classes', verifyToken, async (req, res) => {
         const email = req.query.email;
         const query = {email}
         const result = await classesCollection.find(query).toArray();
         res.send(result);
     })
+    app.get('/class-request', verifyToken, verifyAdmin, async (req, res) => {
+         const result = await classesCollection.find().toArray();
+         res.send(result);
+    });
+
+    app.patch('/class-approve', verifyToken, verifyAdmin, async (req, res)=> {
+          const { id, status } = req.body;
+          const query = {_id: new ObjectId(id)}
+          const updateDoc = {
+            $set: {
+              status
+            }
+          }
+          const result = await classesCollection.updateOne(query, updateDoc);
+          res.send(result);
+    })
+    app.patch('/class-reject', verifyToken, verifyAdmin, async (req, res)=> {
+          const { id, status } = req.body;
+          const query = {_id: new ObjectId(id)}
+          const updateDoc = {
+            $set: {
+              status
+            }
+          }
+          const result = await classesCollection.updateOne(query, updateDoc);
+          res.send(result);
+    })
+
+   app.patch('/class-update', verifyToken, async(req, res)=> {
+       const {id, title, price, description, photoUrl} = req.body;
+       
+       const filter = { _id: new ObjectId(id) };
+       const updateDoc = {
+          $set: {
+            title,
+            price,
+            description,
+            photoUrl
+          }
+       }
+       const result = await classesCollection.updateOne(filter, updateDoc);
+       res.send(result)
+
+   })
+   app.delete('/class-delete/:id', async (req, res)=> {
+    const id = req.params.id;  
+    const query = { _id: new ObjectId(id)}
+    const result = await classesCollection.deleteOne(query);
+    res.send(result)
+  })
+
+
+
+
+
 
 
    //==================================================
