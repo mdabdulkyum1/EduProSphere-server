@@ -1,20 +1,16 @@
-require('dotenv').config()
 const express = require('express');
-const app = express();
-const stripe = require('stripe')(process.env.PAYMENT_SECRET);
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const stripe = require('stripe')(process.env.PAYMENT_SECRET);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+require('dotenv').config()
 
 const port = process.env.PORT || 5000;
+const app = express();
 
 // mid
-const corsOptions = {
-  origin: ['https://server-blond-xi-62.vercel.app'],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+
+app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.PASS_DB}@cluster0.kzmhu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
