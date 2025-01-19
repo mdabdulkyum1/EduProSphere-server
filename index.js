@@ -213,6 +213,14 @@ async function run() {
       const result = await classesCollection.find(query).toArray();
       res.send(result);
     })
+    app.get('/popular-classes', async (req, res)=> {
+      const popularClasses = await classesCollection
+      .find({status: "accepted"})
+      .sort({totalEnrolment: -1})
+      .limit(6)
+      .toArray();
+      res.send(popularClasses);
+    })
     app.get('/class-details/:id', async (req, res)=> {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
