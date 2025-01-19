@@ -278,7 +278,7 @@ async function run() {
     res.send(result)
   })
 
-
+ // 
 
 
 
@@ -315,10 +315,30 @@ async function run() {
 
   app.post('/payments', async (req, res)=> {
     const payment = req.body;
+    const id = payment.classId;
+    const query = { _id: new ObjectId(id)}
+    const updateDoc = {
+      $inc: {
+        totalEnrolment: 1
+      }
+    }
+    const updateResult = await classesCollection.updateOne(query, updateDoc);
+
     const paymentResult = await paymentCollection.insertOne(payment);
-    res.send(paymentResult)
+    res.send({
+      paymentResult,
+      updateResult,
+    })
 })
  
+// enrolled-classes
+app.get('/enrolled-classes/:email', async (req, res)=> {
+    const email = req.params.email;
+    const query  = {email};
+    const result = await paymentCollection.find(query).toArray();
+    res.send(result) 
+})
+
 
 
 
