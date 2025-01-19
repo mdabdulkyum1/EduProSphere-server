@@ -38,6 +38,8 @@ async function run() {
     const teachersCollection = client.db("eduProSphereDB").collection("teachers");
     const classesCollection = client.db("eduProSphereDB").collection("classes");
     const paymentCollection = client.db("eduProSphereDB").collection("payments");
+    const assignmentCollection = client.db("eduProSphereDB").collection("assignments");
+
 
     // jwt apis 
     app.post('/jwt', async (req, res)=> {
@@ -340,6 +342,28 @@ app.get('/enrolled-classes/:email', async (req, res)=> {
 })
 
 
+
+// =============================================================
+//      ============   assignments Apis ========================
+// =============================================================
+app.post('/assignments', async(req, res)=> {
+  const assignmentData = req.body;
+  const result = await assignmentCollection.insertOne(assignmentData);
+  res.send(result)
+})
+app.get('/assignments/:id', async(req, res)=> {
+  const id = req.params.id;
+  const query = {classId: id}
+  const result = await assignmentCollection.find(query).toArray();
+  res.send(result)
+})
+app.get('/totalEnrollment/:id', async (req, res)=> {
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)};
+  const result = await classesCollection.findOne(query);
+  res.send({total: result?.totalEnrolment || 0 });
+
+})
 
 
     // Send a ping to confirm a successful connection
