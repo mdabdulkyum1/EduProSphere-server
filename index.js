@@ -1,15 +1,20 @@
+require('dotenv').config()
 const express = require('express');
 const app = express();
-const stripe = require('stripe')('sk_test_51QfhLYKCphGy46gXvGzFkZkfM6gFMbNmJ3dUtu1QnkQBX5qLXnQQakLbDrPzerg6noTUQZo5BTjpmCxxcFKGmYe000zTFPF81b')
+const stripe = require('stripe')(process.env.PAYMENT_SECRET);
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config()
 
 const port = process.env.PORT || 5000;
 
 // mid
-app.use(cors());
+const corsOptions = {
+  origin: ['https://server-blond-xi-62.vercel.app'],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.PASS_DB}@cluster0.kzmhu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -25,9 +30,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
-
     
     const usersCollection = client.db("eduProSphereDB").collection("users");
     const teachersCollection = client.db("eduProSphereDB").collection("teachers");
@@ -43,8 +45,7 @@ async function run() {
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '365d'})
       res.send({ token })
     })
-
-    // mislayers 
+ 
     const verifyToken = (req, res, next) => {
       // console.log("inside verifyToken",req.headers.authorization);
       
@@ -394,9 +395,6 @@ app.get('/all-feedbacks', async (req, res)=> {
 })
 
 
-    // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
-    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
