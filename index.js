@@ -37,6 +37,7 @@ async function run() {
     const usersCollection = client.db("eduProSphereDB").collection("users");
     const teachersCollection = client.db("eduProSphereDB").collection("teachers");
     const classesCollection = client.db("eduProSphereDB").collection("classes");
+    const paymentCollection = client.db("eduProSphereDB").collection("payments");
 
     // jwt apis 
     app.post('/jwt', async (req, res)=> {
@@ -204,6 +205,17 @@ async function run() {
     // ========================================================================================
     //      ======================== Classes Api =======================================
     // ========================================================================================
+    app.get('/all-classes', async (req, res)=> {
+      const query = { status: "accepted" }
+      const result = await classesCollection.find(query).toArray();
+      res.send(result);
+    })
+    app.get('/class-details/:id', async (req, res)=> {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await classesCollection.findOne(query);
+        res.send(result);
+    })
     app.post('/classes', verifyToken, async (req, res) => {
         const classData = req.body;
         const result = await classesCollection.insertOne(classData);
@@ -275,7 +287,9 @@ async function run() {
    //==================================================
    //                 Payments related api
   app.post('/create-payment-intent', async (req, res)=>{
-    const { price } = req.body;
+    const payAmount = req.body;
+    const price = payAmount?.price
+
     const amount = parseInt(price*100);
 
     const paymentIntent = await stripe.paymentIntents.create({
@@ -299,6 +313,11 @@ async function run() {
       res.send(result);
   })
 
+  app.post('/payments', async (req, res)=> {
+    const payment = req.body;
+    const paymentResult = await paymentCollection.insertOne(payment);
+    res.send(paymentResult)
+})
  
 
 
