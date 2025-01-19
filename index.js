@@ -39,6 +39,7 @@ async function run() {
     const classesCollection = client.db("eduProSphereDB").collection("classes");
     const paymentCollection = client.db("eduProSphereDB").collection("payments");
     const assignmentCollection = client.db("eduProSphereDB").collection("assignments");
+    const feedbackCollection = client.db("eduProSphereDB").collection("feedbacks");
 
 
     // jwt apis 
@@ -273,7 +274,7 @@ async function run() {
        res.send(result)
 
    })
-   app.delete('/class-delete/:id', async (req, res)=> {
+   app.delete('/class-delete/:id',   verifyToken, async (req, res)=> {
     const id = req.params.id;  
     const query = { _id: new ObjectId(id)}
     const result = await classesCollection.deleteOne(query);
@@ -288,7 +289,7 @@ async function run() {
 
    //==================================================
    //                 Payments related api
-  app.post('/create-payment-intent', async (req, res)=>{
+  app.post('/create-payment-intent',  verifyToken, async (req, res)=>{
     const payAmount = req.body;
     const price = payAmount?.price
 
@@ -315,7 +316,7 @@ async function run() {
       res.send(result);
   })
 
-  app.post('/payments', async (req, res)=> {
+  app.post('/payments', verifyToken, async (req, res)=> {
     const payment = req.body;
     const id = payment.classId;
     const query = { _id: new ObjectId(id)}
@@ -334,35 +335,59 @@ async function run() {
 })
  
 // enrolled-classes
-app.get('/enrolled-classes/:email', async (req, res)=> {
+app.get('/enrolled-classes/:email', verifyToken, async (req, res)=> {
     const email = req.params.email;
     const query  = {email};
     const result = await paymentCollection.find(query).toArray();
     res.send(result) 
 })
 
-
-
 // =============================================================
 //      ============   assignments Apis ========================
 // =============================================================
-app.post('/assignments', async(req, res)=> {
+app.post('/assignments', verifyToken, async(req, res)=> {
   const assignmentData = req.body;
   const result = await assignmentCollection.insertOne(assignmentData);
   res.send(result)
 })
-app.get('/assignments/:id', async(req, res)=> {
+app.get('/assignments/:id', verifyToken, async(req, res)=> {
   const id = req.params.id;
   const query = {classId: id}
   const result = await assignmentCollection.find(query).toArray();
   res.send(result)
 })
-app.get('/totalEnrollment/:id', async (req, res)=> {
+app.get('/totalEnrollment/:id', verifyToken, async (req, res)=> {
   const id = req.params.id;
   const query = {_id: new ObjectId(id)};
   const result = await classesCollection.findOne(query);
   res.send({total: result?.totalEnrolment || 0 });
 
+})
+
+// get assignments 
+app.get('/my-assignments/:id', verifyToken, async (req, res)=> {
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await paymentCollection.findOne(query);
+  const classId = result?.classId;
+  const filter = {classId}
+  const myAssignments = await assignmentCollection.find(filter).toArray();
+  res.send(myAssignments)
+})
+
+// ===========================================================
+//    ================= feedback api ===================
+// ===========================================================
+
+app.post('/feedback', verifyToken, async (req, res)=> {
+  const feedbackData = req.body;
+  const result = await feedbackCollection.insertOne(feedbackData);
+  res.send(result)
+})
+
+app.get('/all-feedbacks', async (req, res)=> {
+  const result = await feedbackCollection.find().toArray();
+  res.send(result)
 })
 
 
