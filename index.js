@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const stripe = require('stripe')(process.env.PAYMENT_SECRET);
+const stripe = require('stripe')(`sk_test_51QfhLYKCphGy46gXvGzFkZkfM6gFMbNmJ3dUtu1QnkQBX5qLXnQQakLbDrPzerg6noTUQZo5BTjpmCxxcFKGmYe000zTFPF81b`);
+console.log(process.env.PAYMENT_SECRET_api);
+
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
@@ -374,6 +376,20 @@ app.get('/my-assignments/:id', verifyToken, async (req, res)=> {
   const myAssignments = await assignmentCollection.find(filter).toArray();
   res.send(myAssignments)
 })
+app.patch('/update-assignments', async (req, res)=> {
+  const {assId, email, description} = req.body;
+  const query = {_id: new ObjectId(assId)};
+
+  const updateDoc = {
+    $push: {
+      submissions: { email, description }
+    }
+  }
+
+  const result = await assignmentCollection.updateOne(query, updateDoc);
+  res.send(result)
+
+})
 
 // ===========================================================
 //    ================= feedback api ===================
@@ -389,6 +405,33 @@ app.get('/all-feedbacks', async (req, res)=> {
   const result = await feedbackCollection.find().toArray();
   res.send(result)
 })
+
+// home stats
+
+app.get('/home-stats', async(req, res)=> {
+
+    const totalUsers = await usersCollection.estimatedDocumentCount();
+    const totalClass = await classesCollection.estimatedDocumentCount();
+
+    const totalEnrollmentsResult = await paymentCollection.aggregate([
+      {
+        $group:{
+          _id: null,
+          totalEnrollments: { $sum: 1}
+        }
+      }
+    ]).toArray();
+
+    const totalEnrollments = totalEnrollmentsResult[0]?.totalEnrollments || 0;
+
+    res.send({
+      totalUsers,
+      totalClass,
+      totalEnrollments,
+    });
+})
+
+
 
 
   } finally {
