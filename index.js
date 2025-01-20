@@ -73,6 +73,10 @@ async function run() {
     }
 
     // user related apis
+    app.get('/user-count', async(req, res)=> {
+      const count = await usersCollection.estimatedDocumentCount();
+      res.send({count});
+   })
     app.get('/users/role/:email', async (req, res)=> {
       const email = req.params.email;
       const filter = {email}
@@ -90,9 +94,14 @@ async function run() {
 
     app.get('/users/:email', verifyToken, verifyAdmin, async(req, res)=>{
        const email = req.params.email;
-
+       const page = parseInt(req.query.page, 10) || 0; 
+       const size = parseInt(req.query.size, 10) || 10; 
+       
        const query = { email: { $ne: email} };
-       const cursor = await usersCollection.find(query).toArray();
+       const cursor = await usersCollection.find(query)
+       .skip(page*size)
+      .limit(size)
+      .toArray();
        res.send(cursor);
     })
     app.post('/users', async (req, res) => {
@@ -140,9 +149,20 @@ async function run() {
         res.send(result);
     })
     app.get('/teacher-request',  verifyToken,verifyAdmin, async(req, res)=> {
-      const result = await teachersCollection.find().toArray();
+
+      const page = parseInt(req.query.page, 10) || 0; 
+      const size = parseInt(req.query.size, 10) || 10; 
+
+      const result = await teachersCollection.find()
+      .skip(page*size)
+      .limit(size)
+      .toArray();
       res.send(result);
     })
+    app.get('/count-teacher', async(req, res)=> {
+      const count = await teachersCollection.estimatedDocumentCount();
+      res.send({count});
+   })
     app.get('/my-request/:email', verifyToken, async(req, res)=> {
         const email = req.params.email;
         const query = {email};
@@ -204,9 +224,19 @@ async function run() {
     // ========================================================================================
     app.get('/all-classes', async (req, res)=> {
       const query = { status: "accepted" }
-      const result = await classesCollection.find(query).toArray();
+      const page = parseInt(req.query.page, 10) || 0; 
+      const size = parseInt(req.query.size, 10) || 10; 
+     
+      const result = await classesCollection.find(query)
+      .skip(page*size)
+      .limit(size)
+      .toArray();
       res.send(result);
     })
+    app.get('/count', async(req, res)=> {
+      const count = await classesCollection.estimatedDocumentCount();
+      res.send({count});
+   })
     app.get('/popular-classes', async (req, res)=> {
       const popularClasses = await classesCollection
       .find({status: "accepted"})
@@ -233,7 +263,13 @@ async function run() {
         res.send(result);
     })
     app.get('/class-request', verifyToken, verifyAdmin, async (req, res) => {
-         const result = await classesCollection.find().toArray();
+         const page = parseInt(req.query.page, 10) || 0; 
+         const size = parseInt(req.query.size, 10) || 10; 
+     
+         const result = await classesCollection.find()
+         .skip(page*size)
+      .limit(size)
+      .toArray();
          res.send(result);
     });
 
