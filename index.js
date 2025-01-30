@@ -1,11 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const stripe = require('stripe')(`sk_test_51QfhLYKCphGy46gXvGzFkZkfM6gFMbNmJ3dUtu1QnkQBX5qLXnQQakLbDrPzerg6noTUQZo5BTjpmCxxcFKGmYe000zTFPF81b`);
-console.log(process.env.PAYMENT_SECRET_api);
-
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
+
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_api);
 
 const port = process.env.PORT || 5000;
 const app = express();
